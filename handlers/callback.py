@@ -1,55 +1,35 @@
 import sqlite3
 
 from aiogram import types, Dispatcher
-from config import bot, ADMIN_ID
+from config import bot
 from database.sql_commands import Database
-from keyboards.inline_buttons import questionnaire_keyboard
-
+from keyboard.inline_buttons import questionnaire_keyboard
 
 async def start_questionnaire_call(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=call.from_user.id,
-        text="Python or Mojo ?",
+        text="One piece or Attack on titan ?",
         reply_markup=await questionnaire_keyboard()
     )
-
-
-async def python_call(call: types.CallbackQuery):
+async def one_piece_call(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=call.from_user.id,
-        text="U R Python Developer 🐍"
+        text="You are One piece fan"
     )
-
-
-async def mojo_call(call: types.CallbackQuery):
+async def aot_call(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=call.from_user.id,
-        text="U R Mojo Developer 🔥"
+        text="You are AOT fan"
     )
 
-
-async def admin_call(message: types.Message):
-    print(ADMIN_ID)
-    print(message.from_user.id)
-    if message.from_user.id == int(ADMIN_ID):
-        await message.delete()
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text="Hello master 🐲"
-        )
-    else:
-        await bot.send_message(
-            chat_id=message.from_user.id,
-            text="U r not my master 🤬"
-        )
+    def register_callback_handlers(dp: Dispatcher):
+        dp.register_callback_query_handler(start_questionnaire_call,
+                                           lambda call: call.data == "start_questionnaire")
+        dp.register_callback_query_handler(one_piece_call,
+                                           lambda call: call.data == "One piece")
+        dp.register_callback_query_handler(aot_call,
+                                           lambda call: call.data == "Attack on titan")
 
 
-def register_callback_handlers(dp: Dispatcher):
-    dp.register_callback_query_handler(start_questionnaire_call,
-                                       lambda call: call.data == "start_questionnaire")
-    dp.register_callback_query_handler(python_call,
-                                       lambda call: call.data == "python")
-    dp.register_callback_query_handler(mojo_call,
-                                       lambda call: call.data == "mojo")
-    dp.register_message_handler(admin_call,
-                                lambda word: "dorei" in word.text)
+def register_callback_handlers(dp):
+    return None
