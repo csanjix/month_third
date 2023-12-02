@@ -17,10 +17,15 @@ async def start_keyboard():
         "View Profiles 🪟",
         callback_data="random_profiles"
     )
+    reference_menu_button = InlineKeyboardButton(
+        'Reference Menu 🫡',
+        callback_data='reference_menu'
+    )
     markup.add(questionnaire_button)
     markup.add(registration_button)
     markup.add(my_profile_button)
     markup.add(random_profiles_button)
+    markup.add(reference_menu_button)
     return markup
 
 async def questionnaire_keyboard():
@@ -64,4 +69,13 @@ async def my_profile_keyboard():
     )
     markup.add(like_button)
     markup.add(dislike_button)
+    return markup
+
+async def reference_menu_keyboard():
+    markup = InlineKeyboardMarkup()
+    reference_button = InlineKeyboardButton(
+        'Reference Link 🔗',
+        callback_data="reference_link"
+    )
+    markup.add(reference_button)
     return markup

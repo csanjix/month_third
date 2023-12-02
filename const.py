@@ -8,3 +8,8 @@ USER_FORM_TEXT = 'Nickname : {nickname}\n' \
                  'Geo-Position: {geo}\n' \
                  'Gender: {gender}\n' \
                  'Age: {age}\n'
+
+REFERENCE_MENU_TEXT = "Hi {username}\n" \
+                      "Welcome to the Reference Menu\n\n" \
+                      "You have invited: {referral}\n" \
+                      "Your Balance: {balance}"

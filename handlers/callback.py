@@ -37,12 +37,12 @@ async def admin_call(message: types.Message):
             text='Who R U 🤔 ?'
         )
 
-    def register_callback_handlers(dp: Dispatcher):
-        dp.register_callback_query_handler(start_questionnaire_call,
-                                           lambda call: call.data == "start_questionnaire")
-        dp.register_callback_query_handler(one_piece_call,
-                                           lambda call: call.data == "One piece")
-        dp.register_callback_query_handler(aot_call,
-                                           lambda call: call.data == "Attack on titan")
-        dp.register_message_handler(admin_call, lambda word: 'dorei' in word.text)
+def register_callback_handlers(dp: Dispatcher):
+    dp.register_callback_query_handler(start_questionnaire_call,
+                                       lambda call: call.data == "start_questionnaire")
+    dp.register_callback_query_handler(one_piece_call,
+                                       lambda call: call.data == "One piece")
+    dp.register_callback_query_handler(aot_call,
+                                       lambda call: call.data == "Attack on titan")
+    dp.register_message_handler(admin_call, lambda word: 'dorei' in word.text)
 
