@@ -184,4 +184,29 @@ class Database:
 
         your_link_users = my_bot.get_users_by_link(link='your_link')
         print(f'Пользователи, вошедшие по вашей ссылке: {your_link_users}')
+
+        class Bot:
+            def __init__(self):
+                self.referral_dict = {}
+
+            def register_userr(self, user_id, link):
+                self.referral_dict.setdefault(user_id, []).append(link)
+
+            def get_referrals_for_user(self, user_id):
+                return self.referral_dict.get(user_id, [])
+
+        my_bot = Bot()
+
+        my_bot.register_user(user_id='user1', link='your_link')
+        my_bot.register_user(user_id='user2', link='your_link')
+        my_bot.register_user(user_id='user3', link='another_link')
+        my_bot.register_user(user_id='user4', link='user2')
+
+        user1_referrals = my_bot.get_referrals_for_user(user_id='user1')
+        user2_referrals = my_bot.get_referrals_for_user(user_id='user2')
+        user3_referrals = my_bot.get_referrals_for_user(user_id='user3')
+
+        print(f'Рефералы пользователя user1: {user1_referrals}')
+        print(f'Рефералы пользователя user2: {user2_referrals}')
+        print(f'Рефералы пользователя user3: {user3_referrals}')
         self.connection.commit()
