@@ -34,7 +34,7 @@ async def load_nickname(message: types.Message,
         print(data)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="Tell me abour urself ? (hobby, occupation)"
+        text="Tell me about urself ? (hobby, occupation)"
     )
     await RegistrationStates.next()
 

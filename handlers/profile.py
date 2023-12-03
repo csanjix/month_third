@@ -43,6 +43,7 @@ async def random_profiles_call(call: types.CallbackQuery):
         tg_id=call.from_user.id
     )
     if not profiles:
+        print('function completed')
         await bot.send_message(
             chat_id=call.from_user.id,
             text="There is no user_forms\n"

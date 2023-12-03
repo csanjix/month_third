@@ -9,7 +9,6 @@ from keyboard.inline_buttons import reference_menu_keyboard
 import binascii
 import os
 
-
 async def reference_menu_call(call: types.CallbackQuery):
     db = Database()
     data = db.sql_select_balance_count_referral(
@@ -26,7 +25,6 @@ async def reference_menu_call(call: types.CallbackQuery):
         ),
         reply_markup=await reference_menu_keyboard()
     )
-
 
 async def reference_link_call(call: types.CallbackQuery):
     db = Database()
@@ -51,12 +49,7 @@ async def reference_link_call(call: types.CallbackQuery):
             text=f"Here is your database link: {user['link']}"
         )
 
-
-def register_reference_handlers(dp: Dispatcher) -> object:
-    """
-
-    :rtype: object
-    """
+def register_reference_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(reference_menu_call,
                                        lambda call: call.data == "reference_menu")
     dp.register_callback_query_handler(reference_link_call,

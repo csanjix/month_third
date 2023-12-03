@@ -2,6 +2,7 @@ import sqlite3
 
 from aiogram import types, Dispatcher
 from aiogram.utils.deep_linking import _create_link
+
 from config import bot, DESTINATION
 from database.sql_commands import Database
 from keyboard.inline_buttons import start_keyboard
@@ -22,7 +23,7 @@ async def start_button(message: types.Message):
         if user['tg_id'] == message.from_user.id:
             await bot.send_message(
                 chat_id=message.from_user.id,
-                text="Нельзя переходить по своей ссылке"
+                text="You can't follow your link"
             )
             return
         else:
@@ -36,13 +37,13 @@ async def start_button(message: types.Message):
                 )
             except sqlite3.IntegrityError:
                 pass
+
     db.sql_insert_users(
         telegram_id=message.from_user.id,
         username=message.from_user.username,
         first_name=message.from_user.first_name,
         last_name=message.from_user.last_name,
     )
-
     with open(DESTINATION + "/Крош.webp", 'rb') as photo:
         await bot.send_photo(
             chat_id=message.from_user.id,
@@ -52,6 +53,7 @@ async def start_button(message: types.Message):
             ),
             reply_markup=await start_keyboard()
         )
+
 
 def register_start_handlers(dp: Dispatcher):
     dp.register_message_handler(start_button, commands=['start'])
