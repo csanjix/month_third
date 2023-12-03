@@ -4,6 +4,8 @@ class Database:
     def __init__(self):
         self.connection = sqlite3.connect("db.sqlite3")
         self.cursor = self.connection.cursor()
+
+
     def sql_create_tables(self):
         if self.connection:
             print("Database connected successfully")
@@ -163,4 +165,23 @@ class Database:
             sql_queries.INSERT_REFERRAL_QUERY,
             (None, owner, referral,)
         )
+        class Bot:
+            def __init__(self):
+                self.users = []
+
+            def register_user(self, user_id, link):
+                self.users.append({'user_id': user_id, 'link': link})
+
+            def get_users_by_link(self, link):
+                users_from_link = [user['user_id'] for user in self.users if user.get('link') == link]
+                return users_from_link
+
+        my_bot = Bot()
+
+        my_bot.register_user(user_id='user1', link='your_link')
+        my_bot.register_user(user_id='user2', link='another_link')
+        my_bot.register_user(user_id='user3', link='your_link')
+
+        your_link_users = my_bot.get_users_by_link(link='your_link')
+        print(f'Пользователи, вошедшие по вашей ссылке: {your_link_users}')
         self.connection.commit()
