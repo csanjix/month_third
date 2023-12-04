@@ -4,7 +4,7 @@ from aiogram import types, Dispatcher
 from config import bot, ADMIN_ID
 from database.sql_commands import Database
 from keyboard.inline_buttons import questionnaire_keyboard
-from scraping.scraper import NewsScraper
+from scraping.scrapering import NewsScraper
 
 async def start_questionnaire_call(call: types.CallbackQuery):
     await bot.send_message(
