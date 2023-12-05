@@ -21,19 +21,6 @@ class AsyncScraper:
         for page in range(1, limit + 1):
             yield page
 
-    async def async_generator(self, limit):
-        pass
-
-    async def get_url(self, client, url):
-        pass
-
-    async def parse_pages(self):
-        async with httpx.AsyncClient(headers=self.headers) as client:
-            async for page in self.async_generator(limit=3):
-                url = self.main_url.format(page=page)
-                result = await self.get_url(client=client, url=url)
-                print(f'Result for page {page}: {result}')
-
     async def get_url(self, client, url):
         response = await client.get(url=url)
         print("response: ", response)
@@ -45,7 +32,14 @@ class AsyncScraper:
         for link in links:
             print("plus_url: ", self.plus_url + link)
 
+    async def parse_pages(self):
+        async with httpx.AsyncClient(headers=self.headers) as client:
+            async for page in self.async_generator(limit=3):
+                url = f'{self.main_url}{page}'
+                result = await self.get_url(client=client, url=url)
+                print(f'Result for page {page}: {result}')
+
 
 if __name__ == "__main__":
     scraper = AsyncScraper()
-    scraper.parse_pages()
+    asyncio.run(scraper.parse_pages())
