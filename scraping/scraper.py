@@ -1,5 +1,7 @@
 import requests
 from parsel import Selector
+from aiogram import types, Dispatcher
+from config import Bot
 class Scraper:
     def __init__(self, url):
         self.url = url
