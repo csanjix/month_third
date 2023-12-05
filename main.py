@@ -6,7 +6,7 @@ from scraping.async_scraper import AsyncScraper
 from config import dp
 from handlers import start, profile
 
-async_scraper = AsyncScraper(url='https://animego.org/')
+async_scraper= AsyncScraper(url='https://animego.org/')
 
 async def on_async_scraper_command(message: types.Message):
     try:
