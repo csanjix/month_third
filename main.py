@@ -1,28 +1,32 @@
-from aiogram import executor
+import asyncio
+from aiogram import Bot, Dispatcher, types, executor
+from aiogram.utils import exceptions
+from aiogram import types
+from scraping.async_scraper import AsyncScraper
 from config import dp
-from handlers import (
-    start,
-    callback,
-    chat_actions,
-    registration,
-    profile,
-    reference
-)
-from database import sql_commands
+from handlers import start, profile
 
-async def on_startup(_):
-    db = sql_commands.Database()
-    db.sql_create_tables()
-start.register_start_handlers(dp=dp)
-callback.register_callback_handlers(dp=dp)
-registration.register_registration_handlers(dp=dp)
-profile.register_profile_handlers(dp=dp)
-reference.register_reference_handlers(dp=dp)
-chat_actions.register_chat_actions_handlers(dp=dp)
+async_scraper = AsyncScraper(url='https://animego.org/')
 
-if __name__ == "__main__":
-    executor.start_polling(
-        dp,
-        skip_updates=True,
-        on_startup=on_startup
-    )
+async def on_async_scraper_command(message: types.Message):
+    try:
+        result = await async_scraper.scrape_data()
+
+        if isinstance(result, list):
+            response_text = 'Результаты скрапинга (первые 5):\n'
+            for index, data in enumerate(result[:5], start=1):
+                response_text += f'{index}. {data}\n'
+        else:
+            response_text = result
+
+        await message.answer(response_text)
+
+    except exceptions.MessageTextIsEmpty:
+        await message.answer("Пустой запрос, попробуйте еще раз.")
+
+dp.register_message_handler(on_async_scraper_command, commands=['async_scraper'])
+start.register_start_handlers(dp)
+profile.register_profile_handlers(dp)
+
+if __name__ == '__main__':
+    executor.start_polling(dp, skip_updates=True)

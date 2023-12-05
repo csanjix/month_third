@@ -9,6 +9,7 @@ from keyboard.inline_buttons import like_dislike_keyboard, my_profile_keyboard
 import random
 import re
 
+
 async def my_profile_call(call: types.CallbackQuery):
     db = Database()
     profile = db.sql_select_user_form(
@@ -28,6 +29,7 @@ async def my_profile_call(call: types.CallbackQuery):
             ),
             reply_markup=await my_profile_keyboard()
         )
+
 
 async def random_profiles_call(call: types.CallbackQuery):
     print(call.message.caption)
@@ -68,6 +70,7 @@ async def random_profiles_call(call: types.CallbackQuery):
             )
         )
 
+
 async def like_detect_call(call: types.CallbackQuery):
     owner = re.sub("liked_profile_", "", call.data)
     db = Database()
@@ -84,6 +87,7 @@ async def like_detect_call(call: types.CallbackQuery):
     finally:
         await call.message.delete()
         await random_profiles_call(call=call)
+
 
 def register_profile_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(
