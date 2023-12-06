@@ -8,10 +8,11 @@ from keyboard.inline_buttons import start_keyboard
 from const import START_MENU
 from profanity_check import predict, predict_prob
 
+
 async def chat_messages(message: types.Message):
     db = Database()
     print(message)
-    if message.chat.id == -1002053768:
+    if message.chat.id == -1002128824339:
         ban_word_predict_prob = predict_prob([message.text])
         if ban_word_predict_prob > 0.1:
             await message.delete()
@@ -51,5 +52,7 @@ async def chat_messages(message: types.Message):
             text="There is no such command"
         )
 
+
 def register_chat_actions_handlers(dp: Dispatcher):
     dp.register_message_handler(chat_messages)
+
