@@ -1,32 +1,34 @@
-import asyncio
-from aiogram import Bot, Dispatcher, types, executor
-from aiogram.utils import exceptions
-from aiogram import types
-from scraping.async_scraper import AsyncScraper
-from config import dp
-from handlers import start, profile
+from aiogram import Bot, Dispatcher, types
+from decouple import config
 
-async_scraper= AsyncScraper(url='https://animego.org/')
+TOKEN = config('TOKEN')
+bot = Bot(token=TOKEN)
+dp = Dispatcher(bot)
+db = data_base('your_database_path.db')
 
-async def on_async_scraper_command(message: types.Message):
-    try:
-        result = await async_scraper.scrape_data()
+async def process_message(message: types.Message):
+    ban_word_predict_prob = predict_prob([message.text])
 
-        if isinstance(result, list):
-            response_text = 'Результаты скрапинга (первые 5):\n'
-            for index, data in enumerate(result[:5], start=1):
-                response_text += f'{index}. {data}\n'
+    if ban_word_predict_prob > 0.1:
+        await message.delete()
+
+        telegram_id = message.from_user.id
+        count = db.get_ban_user_count(telegram_id)
+
+        if count >= 3:
+            await bot.kick_chat_member(message.chat.id, telegram_id)
         else:
-            response_text = result
+            db.insert_or_update_ban_user(telegram_id)
 
-        await message.answer(response_text)
+            await bot.send_message(
+                message.chat.id,
+                f"User {message.from_user.id} {message.from_user.first_name} violated the rules. "
+                f"Warning {count + 1}/3"
+            )
 
-    except exceptions.MessageTextIsEmpty:
-        await message.answer("Пустой запрос, попробуйте еще раз.")
-
-dp.register_message_handler(on_async_scraper_command, commands=['async_scraper'])
-start.register_start_handlers(dp)
-profile.register_profile_handlers(dp)
+dp.register_message_handler(process_message)
 
 if __name__ == '__main__':
+    from aiogram import executor
+
     executor.start_polling(dp, skip_updates=True)
