@@ -16,6 +16,7 @@ async def start_button(message: types.Message):
         first_name=message.from_user.first_name,
         last_name=message.from_user.last_name,
     )
+
     with open(DESTINATION + "bot_ani.gif", 'rb') as animation:
         await bot.send_animation(
             chat_id=message.from_user.id,
@@ -29,4 +30,3 @@ async def start_button(message: types.Message):
 
 def register_start_handlers(dp: Dispatcher):
     dp.register_message_handler(start_button, commands=['start'])
-
