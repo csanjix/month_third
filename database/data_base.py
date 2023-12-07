@@ -5,7 +5,6 @@ class Database:
         self.connection = sqlite3.connect(db_path)
         self.cursor = self.connection.cursor()
         self.create_ban_table()
-
     def create_ban_table(self):
         self.connection.execute('''
             CREATE TABLE IF NOT EXISTS ban (
