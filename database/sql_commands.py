@@ -54,3 +54,25 @@ class Database:
         }
         return self.cursor.execute(sql_queries.SELECT_POTENTIAL_BANS_QUERY).fetchall()
 
+    def sql_insert_wallet(self, telegram_id):
+        self.cursor.execute(
+            sql_queries.INSERT_WALLET_QUERY,
+            (None, telegram_id, 0)
+        )
+        self.connection.commit()
+
+    def sql_select_wallet_balance(self, telegram_id):
+        self.cursor.row_factory = lambda cursor, row: {
+            "balance": row[0],
+        }
+        return self.cursor.execute(
+            sql_queries.SELECT_WALLET_BALANCE_QUERY,
+            (telegram_id,)
+        ).fetchone()
+
+    def sql_update_wallet_balance(self, telegram_id, amount):
+        self.cursor.execute(
+            sql_queries.UPDATE_WALLET_BALANCE_QUERY,
+            (amount, telegram_id)
+        )
+        self.connection.commit()
