@@ -35,3 +35,22 @@ class Database:
 
     def sql_ban_user_threshold(self):
         return sql_queries.BAN_USER_THRESHOLD
+
+    def sql_select_all_users(self):
+        self.cursor.row_factory = lambda cursor, row: {
+            "id": row[0],
+            "telegram_id": row[1],
+            "username": row[2],
+            "first_name": row[3],
+            "last_name": row[4],
+        }
+        return self.cursor.execute(sql_queries.SELECT_ALL_USERS_QUERY).fetchall()
+
+    def sql_select_potential_bans(self):
+        self.cursor.row_factory = lambda cursor, row: {
+            "id": row[0],
+            "telegram_id": row[1],
+            "count": row[2],
+        }
+        return self.cursor.execute(sql_queries.SELECT_POTENTIAL_BANS_QUERY).fetchall()
+

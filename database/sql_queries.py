@@ -55,3 +55,14 @@ SELECT * FROM ban WHERE TELEGRAM_ID = ?
 """
 
 BAN_USER_THRESHOLD = 3
+
+SELECT_ALL_USERS_QUERY = """
+SELECT * FROM telegram_users
+"""
+
+SELECT_POTENTIAL_BANS_QUERY = """
+SELECT tu.*, bu.count AS ban_count
+FROM telegram_users tu
+LEFT JOIN ban_users bu ON tu.telegram_id = bu.telegram_id
+"""
+
