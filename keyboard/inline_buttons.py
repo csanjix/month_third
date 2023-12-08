@@ -25,7 +25,7 @@ async def start_keyboard():
         "Latest News",
         callback_data="news"
     )
-    send_money_button = InlineKeyboardButton(
+    send_money_keyboard = InlineKeyboardButton(
         "Send Money 💸",
         callback_data="send_money"
     )
