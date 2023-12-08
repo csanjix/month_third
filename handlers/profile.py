@@ -1,13 +1,12 @@
 import sqlite3
-import aiogram
-
 from aiogram import types, Dispatcher
-from config import bot, ADMIN_ID
-from const import USER_FORM_TEXT
+from config import bot
 from database.sql_commands import Database
-from keyboard.inline_buttons import like_dislike_keyboard, my_profile_keyboard
-import random
-import re
+from const import USER_FORM_TEXT
+from keyboard.inline_buttons import my_profile_keyboard, send_money_keyboard
+from aiogram.utils.deep_linking import _create_link
+import binascii
+import re, os
 
 
 async def my_profile_call(call: types.CallbackQuery):
@@ -101,4 +100,41 @@ def register_profile_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(
         like_detect_call,
         lambda call: "liked_profile_" in call.data
+    )
+
+async def send_money(call: types.CallbackQuery):
+    transaction_data = call.data.split("_")
+    sender_id = call.from_user.id
+    recipient_id = int(transaction_data[2])
+    amount = int(transaction_data[3])
+
+    db = Database()
+    sender_balance = db.sql_select_balance_count_referral(sender_id)["balance"]
+
+    if sender_balance < amount:
+        await bot.send_message(
+            chat_id=sender_id,
+            text="You do not have enough funds on your balance to complete this transaction."
+        )
+        return
+
+    db.sql_insert_transaction(sender_id, recipient_id, amount)
+
+    db.sql_update_balance(sender_id)
+    db.sql_update_balance(recipient_id)
+
+    await bot.send_message(
+        chat_id=sender_id,
+        text=f"You have successfully sent {amount} points to user ID {recipient_id}."
+    )
+    await bot.send_message(
+        chat_id=recipient_id,
+        text=f"User {call.from_user.id} sent you {amount} points."
+    )
+
+async def send_money_call(call: types.CallbackQuery):
+    await bot.send_message(
+        chat_id=call.from_user.id,
+        text="Select a user and enter the amount to transfer:",
+        reply_markup=await send_money_keyboard()
     )

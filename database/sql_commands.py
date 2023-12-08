@@ -1,8 +1,10 @@
 import sqlite3
 from database import sql_queries
 from profanity_check import predict_prob
-from database.sql_commands import BAN_USER_THRESHOLD
+from database.sql_queries import BAN_USER_THRESHOLD
 from aiogram import types
+from database import sql_queries
+
 class Database:
     def __init__(self):
         self.connection = sqlite3.connect("db.sqlite3")
@@ -74,5 +76,17 @@ class Database:
         self.cursor.execute(
             sql_queries.UPDATE_WALLET_BALANCE_QUERY,
             (amount, telegram_id)
+        )
+
+    def sql_create_transactions_table(self):
+        if self.connection:
+            print("Transactions table connected successfully")
+        self.connection.execute(sql_queries.CREATE_TRANSACTIONS_TABLE_QUERY)
+        self.connection.commit()
+
+    def sql_insert_transaction(self, sender_id, recipient_id, amount):
+        self.cursor.execute(
+            sql_queries.INSERT_TRANSACTION_QUERY,
+            (None, sender_id, recipient_id, amount)
         )
         self.connection.commit()

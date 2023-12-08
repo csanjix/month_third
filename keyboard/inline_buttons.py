@@ -25,6 +25,11 @@ async def start_keyboard():
         "Latest News",
         callback_data="news"
     )
+    send_money_button = InlineKeyboardButton(
+        "Send Money 💸",
+        callback_data="send_money"
+    )
+
     markup.add(questionnaire_button)
     markup.add(registration_button)
     markup.add(my_profile_button)
