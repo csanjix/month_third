@@ -1,15 +1,13 @@
 import sqlite3
+import aiogram.utils
 import aiogram
-import random
-from keyboard.inline_buttons import like_dislike_keyboard
 from aiogram import types, Dispatcher
-from config import bot
-from database.sql_commands import Database
+from config import bot, ADMIN_ID
 from const import USER_FORM_TEXT
-from keyboard.inline_buttons import my_profile_keyboard
-from aiogram.utils.deep_linking import _create_link
-import binascii
-import re, os
+from database.sql_commands import Database
+from keyboard.inline_buttons import like_dislike_keyboard, my_profile_keyboard
+import random
+import re
 
 
 async def my_profile_call(call: types.CallbackQuery):
@@ -24,7 +22,7 @@ async def my_profile_call(call: types.CallbackQuery):
             photo=photo,
             caption=USER_FORM_TEXT.format(
                 nickname=profile['nickname'],
-                bio=profile['bio'],
+                bio=profile['biography'],
                 geo=profile['geo'],
                 gender=profile['gender'],
                 age=profile['age'],
@@ -35,7 +33,7 @@ async def my_profile_call(call: types.CallbackQuery):
 
 async def random_profiles_call(call: types.CallbackQuery):
     print(call.message.caption)
-    if call.message.caption.startswith("Hello"):
+    if call.message.caption.startswith("Hello "):
         pass
     else:
         try:
@@ -47,11 +45,10 @@ async def random_profiles_call(call: types.CallbackQuery):
         tg_id=call.from_user.id
     )
     if not profiles:
-        print('function completed')
         await bot.send_message(
             chat_id=call.from_user.id,
-            text="There is no user_forms\n"
-                 "or u liked all forms"
+            text="There are no user_forms here\n"
+                 "or did you like all the forms!"
         )
         return
     print(profiles)
@@ -62,7 +59,7 @@ async def random_profiles_call(call: types.CallbackQuery):
             photo=photo,
             caption=USER_FORM_TEXT.format(
                 nickname=random_profile['nickname'],
-                bio=random_profile['bio'],
+                bio=random_profile['biography'],
                 geo=random_profile['geo'],
                 gender=random_profile['gender'],
                 age=random_profile['age'],
@@ -84,7 +81,7 @@ async def like_detect_call(call: types.CallbackQuery):
     except sqlite3.IntegrityError:
         await bot.send_message(
             chat_id=call.from_user.id,
-            text="You have liked this form before"
+            text="You already loved this shape!"
         )
     finally:
         await call.message.delete()
@@ -103,34 +100,4 @@ def register_profile_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(
         like_detect_call,
         lambda call: "liked_profile_" in call.data
-    )
-
-async def send_money(call: types.CallbackQuery):
-    transaction_data = call.data.split("_")
-    sender_id = call.from_user.id
-    recipient_id = int(transaction_data[2])
-    amount = int(transaction_data[3])
-
-    db = Database()
-    sender_balance = db.sql_select_balance_count_referral(sender_id)["balance"]
-
-    if sender_balance < amount:
-        await bot.send_message(
-            chat_id=sender_id,
-            text="You do not have enough funds on your balance to complete this transaction."
-        )
-        return
-
-    db.sql_insert_transaction(sender_id, recipient_id, amount)
-
-    db.sql_update_balance(sender_id)
-    db.sql_update_balance(recipient_id)
-
-    await bot.send_message(
-        chat_id=sender_id,
-        text=f"You have successfully sent {amount} points to user ID {recipient_id}."
-    )
-    await bot.send_message(
-        chat_id=recipient_id,
-        text=f"User {call.from_user.id} sent you {amount} points."
     )

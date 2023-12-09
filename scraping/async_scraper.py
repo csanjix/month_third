@@ -2,44 +2,41 @@ import httpx
 from parsel import Selector
 import asyncio
 
-
 class AsyncScraper:
-    headers = {
-        'authority': 'jut.su',
-    'accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
-    'accept-language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
-    'referer': 'https://jut.su/',
-    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+    HEADERS = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
     }
-    main_url = 'https://jut.su/oneepiece/'
-    link_xpath = '//div[@class="logo_b wrapper"]/a/@href'
-    plus_url = 'https://jut.su/'
-    xpath = '//div[@class="slicknav_menu"]/a/@href'
-    template_contains_xpath = '//a[contains(@id, "app-show-episode-title")]'
+    URL = "https://24.kg/"
+    LINK_XPATH = '//div[@class="title"]/a/@href'
+    IMG_XPATH = '//div[@class="Dashboard-Content-Card--image"]/img/@src'
 
-    async def async_generator(self, limit):
+    async def async_gererator(self, limit):
         for page in range(1, limit + 1):
             yield page
 
+    async def async_scrapers(self):
+        urls = []
+        async with httpx.AsyncClient(headers=self.HEADERS) as client:
+            async for page in self.async_gererator(limit=5):
+                url = await self.get_url(client=client, url=self.URL)
+                urls.append(url)
+        return urls
+
     async def get_url(self, client, url):
-        response = await client.get(url=url)
-        print("response: ", response)
-        await self.scrape_responses(response)
+        response = await client.get(url)
+        print(response.url)
+        await self.scrap_link(html=response.text, client=client)
+        return response.url
 
-    async def scrape_responses(self, response):
-        tree = Selector(text=response.text)
-        links = tree.xpath(self.link_xpath).extract()
-        for link in links:
-            print("plus_url: ", self.plus_url + link)
+    async def scrap_link(self, html, client):
+        tree = Selector(text=html)
+        links = tree.xpath(self.LINK_XPATH).extract()
+        return links
 
-    async def parse_pages(self):
-        async with httpx.AsyncClient(headers=self.headers) as client:
-            async for page in self.async_generator(limit=3):
-                url = f'{self.main_url}{page}'
-                result = await self.get_url(client=client, url=url)
-                print(f'Result for page {page}: {result}')
-
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     scraper = AsyncScraper()
-    asyncio.run(scraper.parse_pages())
+    asyncio.run(scraper.async_scrapers())

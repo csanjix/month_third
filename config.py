@@ -1,10 +1,12 @@
 from aiogram import Dispatcher, Bot
 from decouple import config
-from handlers.admin import register_admin_handlers
+from aiogram.contrib.fsm_storage.memory import MemoryStorage
 
+
+proxy_url = "http://proxy.server:3128"
+storage = MemoryStorage()
 TOKEN = config("TOKEN")
-bot = Bot(token=TOKEN)
-dp = Dispatcher(bot=bot)
+bot = Bot(token=TOKEN, proxy=proxy_url)
+dp = Dispatcher(bot=bot, storage=storage)
 DESTINATION = config("DESTINATION")
-
-register_admin_handlers(dp)
+ADMIN_ID = int(config("ADMIN_ID"))

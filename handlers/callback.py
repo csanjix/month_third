@@ -1,11 +1,11 @@
 import sqlite3
-
+import re
 from aiogram import types, Dispatcher
 from config import bot, ADMIN_ID
 from database.sql_commands import Database
 from keyboard.inline_buttons import questionnaire_keyboard
-from scraping.scrapering import NewsScraper
-
+from scraping.async_scraper import AsyncScraper
+from keyboard.inline_buttons import save_button
 async def start_questionnaire_call(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=call.from_user.id,
@@ -38,23 +38,33 @@ async def admin_call(message: types.Message):
             text='Who R U 🤔 ?'
         )
 
-async def scraper_call(call: types.CallbackQuery):
-    scraper = NewsScraper()
-    data = scraper.parse_data()
-    for url in data[:4]:
-        await bot.send_message(
-            chat_id=call.from_user.id,
-            text=f"{scraper.PLUS_URL + url}"
-        )
+
+async def async_scraper_call(call: types.CallbackQuery):
+    data = await AsyncScraper().async_scrapers()
+    links = AsyncScraper
+    for link in data:
+        await bot.send_message(chat_id=call.from_user.id, text=f"{link}", reply_markup=await save_button())
+
+
+async def save_service_call(call: types.CallbackQuery):
+    link = re.search(r'(https?://\S+)', call.message.text)
+    if link:
+        Database().sql_insert_service_commands(link=link.group(0))
+
+    await bot.send_message(chat_id=call.from_user.id, text="U save link")
+
 
 def register_callback_handlers(dp: Dispatcher):
     dp.register_callback_query_handler(start_questionnaire_call,
                                        lambda call: call.data == "start_questionnaire")
     dp.register_callback_query_handler(one_piece_call,
-                                       lambda call: call.data == "One piece")
+                                       lambda call: call.data == "one piece")
     dp.register_callback_query_handler(aot_call,
-                                       lambda call: call.data == "Attack on titan")
-    dp.register_message_handler(admin_call, lambda word: 'dorei' in word.text)
+                                       lambda call: call.data == "attack on titan")
+    dp.register_message_handler(admin_call,
+                                lambda word: "dorei" in word.text)
 
-    dp.register_callback_query_handler(scraper_call,
-                                       lambda call: call.data == "news")
+    dp.register_callback_query_handler(async_scraper_call,
+                                       lambda call: call.data == 'async_news')
+    dp.register_callback_query_handler(save_service_call,
+                                       lambda call: call.data == 'save_service')

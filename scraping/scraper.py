@@ -1,30 +1,25 @@
-import requests
 from parsel import Selector
-from aiogram import types, Dispatcher
-from config import Bot
-class Scraper:
-    def __init__(self, url):
-        self.url = url
+import requests
 
-    def scrape_data(self):
-        response = requests.get(self.url)
+class NewsScraper:
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'ru-RU,ru;q=0.8,en-US;q=0.5,en;q=0.3',
+        'Accept-Encoding': 'gzip, deflate, br',
+    }
+    main_url = "https://24.kg/"
+    link_xpath = '//div[@class="title"]/a/@href'
+    img_xpath = '//div[@class="Dashboard-Content-Card--image"]/img/@src'
 
-        if response.status_code == 200:
-            selector = Selector(response.text)
+    def parse_data(self):
+        html = requests.get(url=self.main_url, headers=self.headers).text
+        tree = Selector(text=html)
+        links = tree.xpath(self.link_xpath).extract()
+        for link in links:
+            print(link)
+        return links
 
-            news_headlines = selector.html('width=device-width')
-
-            return news_headlines
-        else:
-            return f'Не удалось получить доступ к странице. Код состояния: {response.status_code}'
-
-url_to_scrape = 'https://www.kinopoisk.ru/?utm_referrer=www.google.com'
-scraper = Scraper(url=url_to_scrape)
-
-result = scraper.scrape_data()
-if isinstance(result, list):
-    print('Результаты скрапинга (первые 5):')
-    for index, data in enumerate(result[:5], start=1):
-        print(f'{index}. {data}')
-else:
-    print(result)
+if __name__ == "__main__":
+    scraper = NewsScraper()
+    scraper.parse_data()

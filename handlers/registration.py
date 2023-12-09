@@ -1,5 +1,6 @@
 import sqlite3
-import aiogram
+
+import aiogram.utils.exceptions
 from aiogram import types, Dispatcher
 from config import bot, DESTINATION
 from const import USER_FORM_TEXT
@@ -21,7 +22,7 @@ class RegistrationStates(StatesGroup):
 async def registration_start(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=call.from_user.id,
-        text="Send me ur Nickname, please!"
+        text="Send me your Nickname please!"
     )
     await RegistrationStates.nickname.set()
 
@@ -33,13 +34,13 @@ async def load_nickname(message: types.Message,
         print(data)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="Tell me about urself ? (hobby, occupation)"
+        text="Say about yourself ? (hobby, occupation)"
     )
     await RegistrationStates.next()
 
 
-async def load_bio(message: types.Message,
-                   state: FSMContext):
+async def load_biography(message: types.Message,
+                         state: FSMContext):
     async with state.proxy() as data:
         data['bio'] = message.text
         print(data)
@@ -51,13 +52,13 @@ async def load_bio(message: types.Message,
 
 
 async def load_geo(message: types.Message,
-                   state: FSMContext):
+                           state: FSMContext):
     async with state.proxy() as data:
         data['geo'] = message.text
         print(data)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="What is ur gender ?"
+        text="UR gender ?"
     )
     await RegistrationStates.next()
 
@@ -69,8 +70,8 @@ async def load_gender(message: types.Message,
         print(data)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="Whats ur age ? \n"
-             "(use ONLY numeric text)"
+        text="How old r u ? \n"
+             "(Use number)"
     )
     await RegistrationStates.next()
 
@@ -82,7 +83,7 @@ async def load_age(message: types.Message,
     except ValueError:
         await bot.send_message(
             chat_id=message.from_user.id,
-            text="I said only numeric text !!!\n"
+            text="I said digital text only!!!\n"
                  "Register again"
         )
         await state.finish()
@@ -93,7 +94,7 @@ async def load_age(message: types.Message,
         print(data)
     await bot.send_message(
         chat_id=message.from_user.id,
-        text="Send me ur photo for ur profile"
+        text="Send me your profile photo"
     )
     await RegistrationStates.next()
 
@@ -120,13 +121,13 @@ async def load_photo(message: types.Message,
                         age=data['age'],
                     )
                 )
-            except aiogram.utils.exception.BadRequest:
+            except aiogram.utils.exceptions.BadRequest:
                 await bot.send_photo(
                     chat_id=message.from_user.id,
                     photo=photo,
                     caption=USER_FORM_TEXT.format(
                         nickname=data['nickname'],
-                        bio="Down below",
+                        bio=data['bio'],
                         geo=data['geo'],
                         gender=data['gender'],
                         age=data['age'],
@@ -134,7 +135,7 @@ async def load_photo(message: types.Message,
                 )
                 await bot.send_message(
                     chat_id=message.from_user.id,
-                    text=data['bio']
+                    text=data['biography']
                 )
             db.sql_insert_user_form_register(
                 telegram_id=message.from_user.id,
@@ -147,7 +148,7 @@ async def load_photo(message: types.Message,
             )
         await bot.send_message(
             chat_id=message.from_user.id,
-            text="Registered successfully 🍾🎉"
+            text="Registration was successful🍾🎉"
         )
         await state.finish()
 
@@ -157,37 +158,31 @@ def register_registration_handlers(dp: Dispatcher):
         registration_start,
         lambda call: call.data == "registration"
     )
-
     dp.register_message_handler(
         load_nickname,
         state=RegistrationStates.nickname,
         content_types=['text']
     )
-
     dp.register_message_handler(
-        load_bio,
+        load_biography,
         state=RegistrationStates.bio,
         content_types=['text']
     )
-
     dp.register_message_handler(
         load_geo,
         state=RegistrationStates.geo,
         content_types=['text']
     )
-
     dp.register_message_handler(
         load_gender,
         state=RegistrationStates.gender,
         content_types=['text']
     )
-
     dp.register_message_handler(
         load_age,
         state=RegistrationStates.age,
         content_types=['text']
     )
-
     dp.register_message_handler(
         load_photo,
         state=RegistrationStates.photo,
