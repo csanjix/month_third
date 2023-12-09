@@ -1,9 +1,12 @@
 import sqlite3
+import aiogram
+import random
+from keyboard.inline_buttons import like_dislike_keyboard
 from aiogram import types, Dispatcher
 from config import bot
 from database.sql_commands import Database
 from const import USER_FORM_TEXT
-from keyboard.inline_buttons import my_profile_keyboard, send_money_keyboard
+from keyboard.inline_buttons import my_profile_keyboard
 from aiogram.utils.deep_linking import _create_link
 import binascii
 import re, os
@@ -130,11 +133,4 @@ async def send_money(call: types.CallbackQuery):
     await bot.send_message(
         chat_id=recipient_id,
         text=f"User {call.from_user.id} sent you {amount} points."
-    )
-
-async def send_money_call(call: types.CallbackQuery):
-    await bot.send_message(
-        chat_id=call.from_user.id,
-        text="Select a user and enter the amount to transfer:",
-        reply_markup=await send_money_keyboard()
     )

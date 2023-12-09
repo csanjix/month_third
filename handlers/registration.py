@@ -1,5 +1,4 @@
 import sqlite3
-
 import aiogram
 from aiogram import types, Dispatcher
 from config import bot, DESTINATION
@@ -121,7 +120,7 @@ async def load_photo(message: types.Message,
                         age=data['age'],
                     )
                 )
-            except aiogram.utils.exceptions.BadRequest:
+            except aiogram.utils.exception.BadRequest:
                 await bot.send_photo(
                     chat_id=message.from_user.id,
                     photo=photo,
@@ -158,31 +157,37 @@ def register_registration_handlers(dp: Dispatcher):
         registration_start,
         lambda call: call.data == "registration"
     )
+
     dp.register_message_handler(
         load_nickname,
         state=RegistrationStates.nickname,
         content_types=['text']
     )
+
     dp.register_message_handler(
         load_bio,
         state=RegistrationStates.bio,
         content_types=['text']
     )
+
     dp.register_message_handler(
         load_geo,
         state=RegistrationStates.geo,
         content_types=['text']
     )
+
     dp.register_message_handler(
         load_gender,
         state=RegistrationStates.gender,
         content_types=['text']
     )
+
     dp.register_message_handler(
         load_age,
         state=RegistrationStates.age,
         content_types=['text']
     )
+
     dp.register_message_handler(
         load_photo,
         state=RegistrationStates.photo,
